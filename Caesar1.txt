@@ -1,0 +1,174 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+namespace Reliase
+{
+    public partial class Form7 : Form
+    {
+        public Form7()
+        {
+            InitializeComponent();
+        }
+
+        private void Times_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string inputFileName = Input.Text;
+                string outputFileName = output.Text;
+
+                if (!File.Exists(inputFileName))
+                {
+                    MessageBox.Show("Input file does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (!File.Exists(outputFileName))
+                {
+                    MessageBox.Show("Output file does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                string encryptedText = File.ReadAllText(inputFileName);
+                string[] dictionary = File.ReadAllLines("D:\\MyProgects\\shifer\\shiferrr\\Reliase\\english_words.txt");
+
+
+
+                string alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                //for (int shift = 1; shift <= maxShift; shift++)
+                //{
+                //    string decryptedText = DecryptData(encryptedText, shift);
+                //    int count = CountWordsInDictionary(decryptedText, dictionary);
+
+
+
+                //    if (count > maxCount)
+                //    {
+                //        maxCount = count;
+                //        result = decryptedText;
+                //        bestShift = shift;
+                //    }
+                //}
+                stopwatch.Stop();
+                File.WriteAllText(outputFileName, result);
+                string time1 = $"{stopwatch.Elapsed}";
+                string key1 = $"{bestShift}";
+                Key1.Text = key1;
+                Times.Text = time1;
+                ShowSuccessMessage("hacking is correctly ");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        static void ShowSuccessMessage(string message)
+        {
+            MessageBox.Show(message, "success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
+        public static char cipher(char ch, int key)
+        {
+            if (!char.IsLetter(ch))
+            {
+
+                return ch;
+            }
+
+            char d = char.IsUpper(ch) ? 'A' : 'a';
+            return (char)((((ch + key) - d) % 26) + d);
+
+
+        }
+        public string CaesarDecryption(string alphabet, string message)
+        {
+
+            Dictionary<char, int> frequencyMap = new Dictionary<char, int>();
+            foreach (char letter in alphabet)
+            {
+                frequencyMap[letter] = 0;
+            }
+
+            foreach (char letter in message)
+            {
+                if (alphabet.Contains(letter))
+                {
+                    frequencyMap[letter]++;
+                }
+            }
+
+
+            char mostFrequentLetter = ' ';
+            int maxFrequency = 0;
+            foreach (var entry in frequencyMap)
+            {
+                if (entry.Value > maxFrequency)
+                {
+                    mostFrequentLetter = entry.Key;
+                    maxFrequency = entry.Value;
+                }
+            }
+
+
+            int key = alphabet.IndexOf(mostFrequentLetter) - alphabet.IndexOf('e'); // 'e' - найбільша частота у англійському тексті
+
+
+            return DecryptData(message, key);
+        }
+
+        public static string EncryptData(string input, int key)
+        {
+            string output = string.Empty;
+
+            foreach (char ch in input)
+                output += cipher(ch, key);
+
+            return output;
+        }
+        public static string DecryptData(string input, int key)
+        {
+            return EncryptData(input, 26 - key);
+        }
+
+        static int CountWordsInDictionary(string text, string[] dictionary)
+        {
+            string[] words = text.Split(new[] { ' ', '.', ',', ';', ':', '!', '?' }, StringSplitOptions.RemoveEmptyEntries);
+            int count = 0;
+
+            foreach (var word in words)
+            {
+                if (dictionary.Any(dictWord => dictWord.ToLower() == word.ToLower()))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            Form4 f4 = new Form4();
+            f4.ShowDialog();
+            this.Close();
+        }
+    }
+}
